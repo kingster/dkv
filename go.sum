@@ -223,6 +223,11 @@ github.com/stretchr/testify v1.5.1 h1:nOGnQDM7FYENwehXlg/kFVnos3rEvtKTjRvOWSzb6H
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c h1:g+WoO5jjkqGAzHWCjJB1zZfXPIAaDpzXIEJ0eS6B5Ok=
 github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c/go.mod h1:ahpPrc7HpcfEWDQRZEmnXMzHY03mLDYMCxeDzy46i+8=
+github.com/uber-go/atomic v1.6.0 h1:G5Wn1BQ2Lf0OtqtSPMfazJICqYA+qwa4L/4gyOAhQYs=
+github.com/uber-go/atomic v1.6.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=
+github.com/uber-go/multierr v1.5.0 h1:YH8MC4iJBB8IMK4ggCoaclHYr7eeMm4VO3CB+nLkGkU=
+github.com/uber-go/multierr v1.5.0/go.mod h1:FeouvMocqHpRaaGuG9EjoKcStLC43Zu/fmqdUMPcKYU=
+github.com/uber-go/tools v0.0.0-20190618225709-2cfd321de3ee/go.mod h1:/KNPcIY/AEmI7gg6xMi5HYaIZr0TbJWKpvnw/OU3Spc=
 github.com/uber-go/zap v1.14.1 h1:xQnCsz4jAhw0ugUkmxSB+SjfitS0Xr7IXCC4Ka0L22k=
 github.com/uber-go/zap v1.14.1/go.mod h1:Mb2vm2krFEG5DV0W9qcHBYFtp/Wku1cvYaqPsS/WYfc=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=

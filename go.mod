@@ -35,6 +35,9 @@ require (
 
 replace (
 	cloud.google.com/go => github.com/googleapis/google-cloud-go v0.26.0
+	go.uber.org/atomic => github.com/uber-go/atomic v1.6.0
+	go.uber.org/multierr => github.com/uber-go/multierr v1.5.0
+	go.uber.org/tools => github.com/uber-go/tools v0.0.0-20190618225709-2cfd321de3ee
 	go.uber.org/zap => github.com/uber-go/zap v1.14.1
 	golang.org/x/crypto => github.com/golang/crypto v0.0.0-20191011191535-87dc89f01550
 	golang.org/x/exp => github.com/golang/exp v0.0.0-20190121172915-509febef88a4

@@ -17,6 +17,7 @@ import (
 	"github.com/flipkart-incubator/dkv/internal/stats"
 	"github.com/flipkart-incubator/dkv/internal/storage"
 	"github.com/flipkart-incubator/dkv/internal/storage/badger"
+	"github.com/flipkart-incubator/dkv/internal/storage/noop"
 	"github.com/flipkart-incubator/dkv/internal/storage/rocksdb"
 	"github.com/flipkart-incubator/dkv/internal/sync"
 	"github.com/flipkart-incubator/dkv/pkg/ctl"
@@ -345,6 +346,9 @@ func newKVStore() (storage.KVStore, storage.ChangePropagator, storage.ChangeAppl
 			dkvLogger.Panic("Badger engine init failed", zap.Error(err))
 		}
 		return badgerDb, nil, badgerDb, badgerDb
+	case "noop":
+		ndb, _ := noop.OpenDB()
+		return ndb, nil, nil, nil
 	default:
 		slg.Panicf("Unknown storage engine: %s", dbEngine)
 		return nil, nil, nil, nil

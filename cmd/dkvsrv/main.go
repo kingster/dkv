@@ -12,6 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/flipkart-incubator/dkv/internal/master"
 	"github.com/flipkart-incubator/dkv/internal/slave"
 	"github.com/flipkart-incubator/dkv/internal/stats"
@@ -81,6 +84,10 @@ func main() {
 	setupAccessLogger()
 	setFlagsForNexusDirs()
 	setupStats()
+
+	go func() {
+		http.ListenAndServe("127.0.0.1:6060", nil)
+	}()
 
 	kvs, cp, ca, br := newKVStore()
 	grpcSrvr, lstnr := newGrpcServerListener()

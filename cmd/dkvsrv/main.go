@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -56,6 +57,7 @@ var (
 )
 
 func init() {
+	runtime.MemProfileRate = 1
 	flag.BoolVar(&disklessMode, "dbDiskless", false, fmt.Sprintf("Enables diskless mode where data is stored entirely in memory.\nAvailable on Badger for standalone and slave roles. (default %v)", disklessMode))
 	flag.StringVar(&dbFolder, "dbFolder", "/tmp/dkvsrv", "DB folder path for storing data files")
 	flag.StringVar(&dbListenAddr, "dbListenAddr", "127.0.0.1:8080", "Address on which the DKV service binds")

@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"path"
-	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -44,6 +43,7 @@ var (
 	statsdAddr       string
 	replMasterAddr   string
 	replPollInterval time.Duration
+	blockCacheSize   uint64
 
 	// Logging vars
 	dbAccessLog    string
@@ -57,7 +57,6 @@ var (
 )
 
 func init() {
-	runtime.MemProfileRate = 1
 	flag.BoolVar(&disklessMode, "dbDiskless", false, fmt.Sprintf("Enables diskless mode where data is stored entirely in memory.\nAvailable on Badger for standalone and slave roles. (default %v)", disklessMode))
 	flag.StringVar(&dbFolder, "dbFolder", "/tmp/dkvsrv", "DB folder path for storing data files")
 	flag.StringVar(&dbListenAddr, "dbListenAddr", "127.0.0.1:8080", "Address on which the DKV service binds")
@@ -68,6 +67,7 @@ func init() {
 	flag.DurationVar(&replPollInterval, "replPollInterval", 5*time.Second, "Interval used for polling changes from master. Eg., 10s, 5ms, 2h, etc.")
 	flag.StringVar(&dbAccessLog, "dbAccessLog", "", "File for logging DKV accesses eg., stdout, stderr, /tmp/access.log")
 	flag.BoolVar(&verboseLogging, "verbose", false, fmt.Sprintf("Enable verbose logging.\nBy default, only warnings and errors are logged. (default %v)", verboseLogging))
+	flag.Uint64Var(&blockCacheSize, "blockCacheSize", defBlockCacheSize, "Amount of cache (in bytes) to set aside for data blocks. A value of 0 disables block caching altogether.")
 	setDKVDefaultsForNexusDirs()
 }
 
@@ -78,6 +78,8 @@ const (
 	masterRole             = "master"
 	slaveRole              = "slave"
 )
+
+const defBlockCacheSize = 3 << 30
 
 func main() {
 	flag.Parse()
@@ -261,8 +263,22 @@ func haveFlagsWithPrefix(prefix string) bool {
 	return res
 }
 
+func printFlagsWithoutPrefix(prefixes ...string) {
+	flag.VisitAll(func(f *flag.Flag) {
+		shouldPrint := true
+		for _, pf := range prefixes {
+			if strings.HasPrefix(f.Name, pf) {
+				shouldPrint = false
+				break
+			}
+		}
+		if shouldPrint {
+			log.Printf("%s (%s): %v\n", f.Name, f.Usage, f.Value)
+		}
+	})
+}
+
 func printFlagsWithPrefix(prefixes ...string) {
-	log.Println("Launching DKV server with following flags:")
 	flag.VisitAll(func(f *flag.Flag) {
 		for _, pf := range prefixes {
 			if strings.HasPrefix(f.Name, pf) {
@@ -277,6 +293,7 @@ func toDKVSrvrRole(role string) dkvSrvrRole {
 }
 
 func (role dkvSrvrRole) printFlags() {
+	log.Println("Launching DKV server with following flags:")
 	switch role {
 	case noRole:
 		printFlagsWithPrefix("db")
@@ -289,6 +306,7 @@ func (role dkvSrvrRole) printFlags() {
 	case slaveRole:
 		printFlagsWithPrefix("db", "repl")
 	}
+	printFlagsWithoutPrefix("db", "repl", "nexus")
 }
 
 func setDKVDefaultsForNexusDirs() {
@@ -316,8 +334,6 @@ func setupStats() {
 	}
 }
 
-const cacheSize = 3 << 30
-
 func newKVStore() (storage.KVStore, storage.ChangePropagator, storage.ChangeApplier, storage.Backupable) {
 	slg := dkvLogger.Sugar()
 	defer slg.Sync()
@@ -331,7 +347,7 @@ func newKVStore() (storage.KVStore, storage.ChangePropagator, storage.ChangeAppl
 	switch dbEngine {
 	case "rocksdb":
 		rocksDb, err := rocksdb.OpenDB(dbDir,
-			rocksdb.WithCacheSize(cacheSize),
+			rocksdb.WithCacheSize(blockCacheSize),
 			rocksdb.WithStats(statsCli),
 			rocksdb.WithLogger(dkvLogger))
 		if err != nil {
@@ -347,6 +363,7 @@ func newKVStore() (storage.KVStore, storage.ChangePropagator, storage.ChangeAppl
 				badger.WithStats(statsCli))
 		} else {
 			badgerDb, err = badger.OpenDB(dbDir,
+				badger.WithCacheSize(blockCacheSize),
 				badger.WithLogger(dkvLogger),
 				badger.WithSyncWrites(),
 				badger.WithStats(statsCli))
